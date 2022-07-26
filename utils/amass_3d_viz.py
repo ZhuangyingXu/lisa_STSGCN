@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.animation as animation
 #from utils.amass_3d import *
-from utils.dpw3d import * # choose dataset to visualize on the dataset class that we import
+from utils.amass_3d import * # choose dataset to visualize on the dataset class that we import
 from utils.loss_funcs import mpjpe_error
 
 
@@ -180,9 +180,7 @@ def visualize(input_n,output_n,visualize_from,path,modello,device,n_viz,skip_rat
         line_anim = animation.FuncAnimation(fig, update, output_n, fargs=(data_gt,data_pred,gt_plots,pred_plots
                                                                    ,fig,ax),interval=70, blit=False)
         plt.show()
-        
-     #   line_anim.save('amass_3d.gif')
-
+        # line_anim.save('amass_3d.gif')
         
         if cnt==n_viz-1:
             break
