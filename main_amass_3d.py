@@ -112,19 +112,20 @@ def train():
             if (epoch+1)%10==0:
                 print('----saving model-----')
                 torch.save(model.state_dict(),os.path.join(args.model_path,model_name))
-
-
         
-                plt.figure(1)
-                plt.plot(train_loss, 'r', label='Train loss')
-                plt.plot(val_loss, 'g', label='Val loss')
-                plt.legend()
-                plt.show()
-
+        # Save the train vs loss figure
+        plt.figure()
+        plt.title("STS loss vs epoch")
+        plt.plot(range(len(train_loss)), train_loss, label='training')
+        plt.plot(range(len(val_loss)), val_loss, label='validation')
+        plt.legend(loc='upper right')
+        plt.ylabel("Loss")
+        plt.xlabel("Epoch")
+        plt.grid()
+        plt.savefig(f"STS_loss.svg", format='svg')
+        plt.show()
 
 def test():
-
-
         print('Test mode')
         model.load_state_dict(torch.load(os.path.join(args.model_path,model_name)))
         model.eval()
