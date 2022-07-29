@@ -36,21 +36,9 @@ class Datasets(Dataset):
         self.joint_used = np.arange(4, 22) # start from 4 for 17 joints, removing the non moving ones
         seq_len = self.in_n + self.out_n
 
-        # TODO: Update to make the same subsets of datasets used by baseline and the STSGCN here.
-        # Temporary update the splits for reproduce efficiency
-        amass_splits = [['ACCAD'],
-                        ['HumanEva'],
-                        ['ACCAD']]
-
-        # amass_splits = [
-        #     ['CMU', 'MPI_Limits', 'TotalCapture', 'Eyes_Japan_Dataset', 'KIT', 'EKUT', 'TCD_handMocap', 'ACCAD'],
-        #     ['HumanEva', 'MPI_HDM05', 'SFU', 'MPI_mosh'],
-        #     ['BioMotionLab_NTroje'],
-        # ]
-        # amass_splits = [['BioMotionLab_NTroje'], ['HumanEva'], ['SSM_synced']]
-        # amass_splits = [['HumanEva'], ['HumanEva'], ['HumanEva']]
-        # amass_splits[0] = list(
-        #     set(amass_splits[0]).difference(set(amass_splits[1] + amass_splits[2])))
+        amass_splits = ['training_fnames.txt',
+                        'validation_fnames.txt',
+                        'test_fnames.txt']
 
         # from human_body_prior.body_model.body_model import BodyModel
         # from smplx import lbs
@@ -78,57 +66,53 @@ class Datasets(Dataset):
         for i in range(len(parents)):
             parent[i] = parents[i]
         n = 0
-        for ds in amass_splits[split]:
-            data_path = os.path.join(self.path_to_data, ds)
-            if not os.path.isdir(data_path):
-                print(f"direction does not exit: {data_path}")
+        
+        file_list_name = amass_splits[split]
+        with open(file_list_name) as file:
+            lines = file.readlines()
+            lines = [line.rstrip() for line in lines]
+        
+        for line in lines:
+            act_path = os.path.join(self.path_to_data, line)
+            pose_all = np.load(act_path)
+            try:
+                poses = pose_all['poses']
+            except:
+                print('no poses at {}'.format(act_path))
                 continue
-            print('>>> loading {}'.format(ds))
-            for sub in os.listdir(data_path):
-                sub_path = os.path.join(data_path, sub)
-                if not os.path.isdir(sub_path):
-                    continue
-                for act in os.listdir(sub_path):
-                    if not act.endswith('.npz'):
-                        continue
-                    # if not ('walk' in act or 'jog' in act or 'run' in act or 'treadmill' in act):
-                    #     continue
-                    act_path = os.path.join(sub_path, act)
-                    pose_all = np.load(act_path)
-                    try:
-                        poses = pose_all['poses']
-                    except:
-                        print('no poses at {}_{}_{}'.format(ds, sub, act))
-                        continue
-                    frame_rate = pose_all['mocap_framerate']
-                    # gender = pose_all['gender']
-                    # dmpls = pose_all['dmpls']
-                    # betas = pose_all['betas']
-                    # trans = pose_all['trans']
-                    fn = poses.shape[0]
-                    sample_rate = int(frame_rate // 25)
-                    fidxs = range(0, fn, sample_rate)
-                    fn = len(fidxs)
-                    poses = poses[fidxs]
-                    poses = torch.from_numpy(poses).float().cuda()
-                    poses = poses.reshape([fn, -1, 3])
-                    # remove global rotation
-                    poses[:, 0] = 0
-                    p3d0_tmp = p3d0.repeat([fn, 1, 1])
-                    p3d = ang2joint(p3d0_tmp, poses, parent)
-                    # self.p3d[(ds, sub, act)] = p3d.cpu().data.numpy()
-                    self.p3d.append(p3d.cpu().data.numpy())
-                    if split == 2:
-                        valid_frames = np.arange(0, fn - seq_len + 1, skip_rate)
-                    else:
-                        valid_frames = np.arange(0, fn - seq_len + 1, skip_rate)
+            try:
+                frame_rate = pose_all['mocap_framerate']
+            except:
+                print('no mocap_framerate at {}. substitute with 60'.format(act_path))
+                frame_rate = 60
+            # gender = pose_all['gender']
+            # dmpls = pose_all['dmpls']
+            # betas = pose_all['betas']
+            # trans = pose_all['trans']
+            fn = poses.shape[0]
+            sample_rate = int(frame_rate // 25)
+            fidxs = range(0, fn, sample_rate)
+            fn = len(fidxs)
+            poses = poses[fidxs]
+            poses = torch.from_numpy(poses).float().cuda()
+            poses = poses.reshape([fn, -1, 3])
+            # remove global rotation
+            poses[:, 0] = 0
+            p3d0_tmp = p3d0.repeat([fn, 1, 1])
+            p3d = ang2joint(p3d0_tmp, poses, parent)
+            # self.p3d[(ds, sub, act)] = p3d.cpu().data.numpy()
+            self.p3d.append(p3d.cpu().data.numpy())
+            if split == 2:
+                valid_frames = np.arange(0, fn - seq_len + 1, skip_rate)
+            else:
+                valid_frames = np.arange(0, fn - seq_len + 1, skip_rate)
 
-                    # tmp_data_idx_1 = [(ds, sub, act)] * len(valid_frames)
-                    self.keys.append((ds, sub, act))
-                    tmp_data_idx_1 = [n] * len(valid_frames)
-                    tmp_data_idx_2 = list(valid_frames)
-                    self.data_idx.extend(zip(tmp_data_idx_1, tmp_data_idx_2))
-                    n += 1
+            # tmp_data_idx_1 = [(ds, sub, act)] * len(valid_frames)
+            self.keys.append((act_path))
+            tmp_data_idx_1 = [n] * len(valid_frames)
+            tmp_data_idx_2 = list(valid_frames)
+            self.data_idx.extend(zip(tmp_data_idx_1, tmp_data_idx_2))
+            n += 1
 
     def __len__(self):
         return np.shape(self.data_idx)[0]
