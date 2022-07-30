@@ -133,8 +133,10 @@ def visualize(input_n,output_n,visualize_from,path,modello,device,n_viz,skip_rat
     num_workers=0)       
     
         
-
+    prefix = f"custom_amass_3d_input_n_{input_n}_output_n_{output_n}_skip_rate_{skip_rate}"
+    count = 0
     for cnt,batch in enumerate(loader): 
+        count = count + 1
         batch = batch.float().to(device) # multiply by 1000 for milimeters
         sequences_train=batch[:,0:input_n,joint_used,:].permute(0,3,1,2)
         sequences_predict_gt=batch[:,input_n:input_n+output_n,full_joint_used,:]
@@ -179,8 +181,11 @@ def visualize(input_n,output_n,visualize_from,path,modello,device,n_viz,skip_rat
 
         line_anim = animation.FuncAnimation(fig, update, output_n, fargs=(data_gt,data_pred,gt_plots,pred_plots
                                                                    ,fig,ax),interval=70, blit=False)
-        plt.show()
-        # line_anim.save('amass_3d.gif')
+
+        # Note: plt.show() and line_anim.save() can only choose one to execute. Somehow some glitch of unknown reason would happen if enabled both
+        # plt.show()
+        gif_result_file = os.path.join("results", f"{prefix}_{count}.gif")
+        line_anim.save(gif_result_file)
         
         if cnt==n_viz-1:
             break
