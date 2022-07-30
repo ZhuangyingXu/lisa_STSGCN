@@ -32,12 +32,8 @@ model = Model(args.input_dim,args.input_n,
 
 
 
-
-model_name='amass_3d_'+str(args.output_n)+'frames_ckpt'
-
-
+model_name = f"custom_amass_3d_input_n_{args.input_n}_output_n_{args.output_n}_skip_rate_{args.skip_rate}_joints_to_consider_{args.joints_to_consider}_frames_ckpt"
 print('total number of parameters of the network is: '+str(sum(p.numel() for p in model.parameters() if p.requires_grad)))
-
 
 def train():
 
@@ -109,9 +105,12 @@ def train():
                 if args.use_scheduler:
                     scheduler.step()
 
-            if (epoch+1)%10==0:
-                print('----saving model-----')
-                torch.save(model.state_dict(),os.path.join(args.model_path,model_name))
+        
+        # Save final model
+        print('----saving model-----')
+        model_path = os.path.join(args.model_path, model_name)
+        torch.save(model.state_dict(), model_path)
+        print(f"Model saved in {model_path}")
         
         # Save the train vs loss figure
         plt.figure()
@@ -122,7 +121,8 @@ def train():
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.grid()
-        plt.savefig(f"STS_loss.svg", format='svg')
+        fig_save_path = os.path.join("results", f"{model_name}_STS_loss.svg")
+        plt.savefig(fig_save_path, format='svg')
         plt.show()
 
 def test():
@@ -158,7 +158,13 @@ def test():
 
                 loss=mpjpe_error(all_joints_seq,sequences_predict_gt)*1000 # loss in milimeters
                 accum_loss+=loss*batch_dim
+        
+        test_summary_file_path = os.path.join("results", f"{model_name}_test_result.txt")
+        with open(test_summary_file_path, 'w') as f:
+            message = 'overall average loss in mm is: '+str(accum_loss/n)
+            f.write(message)
         print('overall average loss in mm is: '+str(accum_loss/n))
+
 if __name__ == '__main__':
 
     if args.mode == 'train':
