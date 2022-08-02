@@ -1,3 +1,45 @@
+<div align="center">
+<h1>Reproduce steps</h1>
+<div align="center">
+
+<div align="justify">
+<h2>Dataset download</h2>
+
+- Datasets download here: https://drive.google.com/file/d/1AZSq65Ogq8BFwb-1sZxUIRw_P17OvqqC/view?usp=sharing. This is a .zipped version for all the .npz format sub-datasets in the AMASS datasets.
+
+- Extract the dataset in the STSGCN folder. Expected to be in .\STSGCN\datasets\AMASS. Structure should be as follows: 
+
+<image src="./folder_structure.png" width="600">
+
+<h2>Model train args example</h2>
+
+```
+python main_amass_3d.py --data_dir "D:\\gitHub\\GT\\STSGCN\\datasets" --input_n 10 --output_n 25 --skip_rate 5 --joints_to_consider 18 --model_path ".\\checkpoints\\CKPT_3D_AMASS"
+```
+- Note: Require the setups for –data_dir for windows machine
+- If meet error "Torch not compiled with CUDA enabled" and you are also in Windows. Run the following: pip3 install torch==1.11.0+cu113 -f https://download.pytorch.org/whl/cu113/torch_stable.html
+
+<h2>Model test args example</h2>
+
+```
+python main_amass_3d.py --data_dir "D:\\gitHub\\GT\\STSGCN\\datasets" --input_n 10 --output_n 25 --skip_rate 5 --joints_to_consider 18 --mode test --model_path ".\\checkpoints\\CKPT_3D_AMASS"
+```
+- Example outputs: overall average loss in mm is: tensor(52.3614, device='cuda:0')
+
+<h2>Visualization args example</h2>
+
+```
+python main_amass_3d.py --data_dir "D:\\gitHub\\GT\\STSGCN\\datasets" --input_n 10 --output_n 25 --skip_rate 5 --joints_to_consider 18 --mode viz --model_path ".\\checkpoints\\CKPT_3D_AMASS" --n_viz 5
+```
+- Example visualizations:
+  
+<image src="./example_result.png" width="600">
+<div align="justify">
+
+
+<div align="center">
+<h1>Below are from original fairmotion readme</h1>
+<div align="center">
 
 <div align="center">
 <h1>Space-Time-Separable Graph Convolutional Network for Pose Forecasting (<b>Accepted to ICCV '21</b>)</h1>
