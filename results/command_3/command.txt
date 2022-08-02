@@ -1,0 +1,1 @@
+python main_amass_3d.py --data_dir "D:\\gitHub\\GT\\STSGCN\\datasets" --input_n 10 --output_n 25 --skip_rate 5 --joints_to_consider 18 --n_epochs 50 --model_path ".\\checkpoints\\CKPT_3D_AMASS"
