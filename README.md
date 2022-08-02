@@ -33,12 +33,12 @@ python main_amass_3d.py --data_dir "D:\\gitHub\\GT\\STSGCN\\datasets" --input_n 
 ```
 - Example visualizations:
   
-<image src="./example_result.png" width="600">
+<image src="./example_result.gif" width="600">
 <div align="justify">
 
 
 <div align="center">
-<h1>Below are from original fairmotion readme</h1>
+<h1>Below are from original STS readme</h1>
 <div align="center">
 
 <div align="center">
