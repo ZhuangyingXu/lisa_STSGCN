@@ -33,7 +33,7 @@ python main_amass_3d.py --data_dir "D:\\gitHub\\GT\\STSGCN\\datasets" --input_n 
 ```
 - Example visualizations:
   
-<image src="./example_result.png" width="600">
+<image src="./example_result.gif" width="600">
 <div align="justify">
 
 
