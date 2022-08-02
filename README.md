@@ -38,7 +38,7 @@ python main_amass_3d.py --data_dir "D:\\gitHub\\GT\\STSGCN\\datasets" --input_n 
 
 
 <div align="center">
-<h1>Below are from original fairmotion readme</h1>
+<h1>Below are from original STS readme</h1>
 <div align="center">
 
 <div align="center">
