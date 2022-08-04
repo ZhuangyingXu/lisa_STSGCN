@@ -104,7 +104,7 @@ class Datasets(Dataset):
             p3d0_tmp = p3d0.repeat([fn, 1, 1])
             p3d = ang2joint(p3d0_tmp, poses, parent)
             # self.p3d[(ds, sub, act)] = p3d.cpu().data.numpy()
-            self.p3d.append(p3d)
+            self.p3d.append(p3d.cpu().data.numpy())
 
             if split == 2:
                 valid_frames = np.arange(0, fn - seq_len + 1, skip_rate)

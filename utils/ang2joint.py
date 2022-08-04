@@ -3,6 +3,7 @@
 
 import torch
 from scipy.spatial.transform import Rotation
+import torch
 
 
 '''
@@ -58,7 +59,9 @@ def ang2joint(p3d0, pose,
 
     # Return axis angle instead of position for relevant joints
     J_rot = stacked[:, :, :3, :3]
-    J_transformed = R2A(J_rot.cpu().data.numpy())
+    J_transformed = torch.Tensor(R2A(J_rot.cpu())).cuda()
+    # These are the same shape!
+    # print(J_transformed.shape, stacked[:, :, :3, 3].shape)
 
     # This is extracting the position from a Transition matrix
     # J_transformed = stacked[:, :, :3, 3]
