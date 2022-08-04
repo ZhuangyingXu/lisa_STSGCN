@@ -2,6 +2,9 @@
 # coding: utf-8
 
 import torch
+from scipy.spatial.transform import Rotation
+import torch
+
 
 '''
 https://github.com/wei-mao-2019/HisRepItself/blob/master/utils/ang2joint.py
@@ -53,8 +56,28 @@ def ang2joint(p3d0, pose,
         )
 
     stacked = torch.stack(results, dim=1)
-    J_transformed = stacked[:, :, :3, 3]
+
+    # Return axis angle instead of position for relevant joints
+    J_rot = stacked[:, :, :3, :3]
+    J_transformed = torch.Tensor(R2A(J_rot.cpu())).cuda()
+    # These are the same shape!
+    # print(J_transformed.shape, stacked[:, :, :3, 3].shape)
+
+    # This is extracting the position from a Transition matrix
+    # J_transformed = stacked[:, :, :3, 3]
     return J_transformed
+
+# These are from fairmotion conversion files
+def batch_auto_reshape(x, fn, shape_in, shape_out):
+    reshape = x.ndim - len(shape_in) > 1
+    xx = x.reshape(-1, *shape_in) if reshape else x
+    y = fn(xx)
+    return y.reshape(x.shape[: -len(shape_in)] + shape_out) if reshape else y
+
+def R2A(R):
+    return batch_auto_reshape(
+        R, lambda x: Rotation.from_matrix(x).as_rotvec(), (3, 3), (3,),
+    )
 
 
 # In[ ]:
