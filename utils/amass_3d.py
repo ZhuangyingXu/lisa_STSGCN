@@ -89,6 +89,9 @@ class Datasets(Dataset):
             # dmpls = pose_all['dmpls']
             # betas = pose_all['betas']
             # trans = pose_all['trans']
+
+            # poses (frames, 156)
+            # Some are more than 156...
             fn = poses.shape[0]
             sample_rate = int(frame_rate // 25)
             fidxs = range(0, fn, sample_rate)
@@ -101,7 +104,8 @@ class Datasets(Dataset):
             p3d0_tmp = p3d0.repeat([fn, 1, 1])
             p3d = ang2joint(p3d0_tmp, poses, parent)
             # self.p3d[(ds, sub, act)] = p3d.cpu().data.numpy()
-            self.p3d.append(p3d.cpu().data.numpy())
+            self.p3d.append(p3d)
+
             if split == 2:
                 valid_frames = np.arange(0, fn - seq_len + 1, skip_rate)
             else:
